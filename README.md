@@ -10,7 +10,7 @@ This application uses Computer Vision, Augmented Reality, and Machine Learning t
 Application built by:  
 1. Omar Sharifali  
 2. Jason Tu  
-3. Blue Lin  
+3. Georgianna (Blue) Lin
 4. Andrew Chang  
 5. Sarah Li  
   

@@ -44,9 +44,6 @@ class MainFragment : Fragment() {
         }
 
         arFragment = (childFragmentManager.findFragmentById(R.id.uxFragment) as ArFragment)
-        val config = Config(arFragment.arSceneView.session)
-        config.focusMode = Config.FocusMode.AUTO
-        arFragment.arSceneView.session.configure(config)
         arFragment.setOnTapArPlaneListener { hitResult, plane, motionEvent ->
             val anchor = hitResult.createAnchor()
 
@@ -63,6 +60,13 @@ class MainFragment : Fragment() {
                     transformableNode.renderable = renderable
                     transformableNode.select()
                 }
+        }
+
+        autoFocus.setOnClickListener {
+            val config = Config(arFragment.arSceneView.session)
+            config.focusMode = Config.FocusMode.AUTO
+            config.updateMode = Config.UpdateMode.LATEST_CAMERA_IMAGE
+            arFragment.arSceneView.session.configure(config)
         }
 
         thread(false) {

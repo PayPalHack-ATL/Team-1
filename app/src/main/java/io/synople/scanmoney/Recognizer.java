@@ -6,14 +6,12 @@ import android.graphics.Rect;
 import android.graphics.YuvImage;
 import android.media.Image;
 import android.util.Log;
+import android.widget.Toast;
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobile.client.AWSMobileClient;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.rekognition.AmazonRekognitionClient;
-import com.amazonaws.services.rekognition.model.Attribute;
-import com.amazonaws.services.rekognition.model.FaceRecord;
-import com.amazonaws.services.rekognition.model.IndexFacesRequest;
-import com.amazonaws.services.rekognition.model.IndexFacesResult;
+import com.amazonaws.services.rekognition.model.*;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
@@ -55,7 +53,11 @@ public class Recognizer {
     }
 
     public Recognizer(Context context) {
-        client = new AmazonRekognitionClient(AWSMobileClient.getInstance().getCredentialsProvider());
+        client = new AmazonRekognitionClient(new CognitoCachingCredentialsProvider(
+                context,
+                "us-east-1:51ce95b9-0d3d-4eb6-b729-1d40d5b39ba7", // Identity pool ID
+                Regions.US_EAST_1 // Region
+        ));
     }
 
     public List<FaceRecord> getFaces(Image image) {
@@ -71,8 +73,11 @@ public class Recognizer {
             add("ALL");
         }});
         IndexFacesResult result = client.indexFaces(request);
+        Log.v("Recognizer", result.toString());
         List<FaceRecord> records = result.getFaceRecords();
         Log.d("Recognizer", records.toString());
+        matchFaces(records);
+
         return records;
     }
 //    public void matchFaces(List<FaceRecord> faces) {
@@ -87,4 +92,18 @@ public class Recognizer {
 //        }
 //
 //    }
+
+    public void matchFaces(List<FaceRecord> faces) {
+        for (FaceRecord face : faces) {
+            String id = face.getFace().getFaceId();
+            SearchFacesRequest searchFacesRequest = new SearchFacesRequest()
+                    .withCollectionId("bills")
+                    .withFaceId(id)
+                    .withFaceMatchThreshold(70F);
+            List<FaceMatch> matches = client.searchFaces(searchFacesRequest).getFaceMatches();
+            String bestMatch = matches.get(0).getFace().getExternalImageId();
+            face.getFace().setExternalImageId(bestMatch);
+            Log.d("Recognizer", bestMatch);
+        }
+    }
 }

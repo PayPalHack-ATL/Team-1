@@ -11,9 +11,9 @@ class MainActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        AWSMobileClient.getInstance().initialize(this) {
-            Log.d("MainActivity", "AWSMobileClient is initialized")
-        }.execute()
+//        AWSMobileClient.getInstance().initialize(this) {
+//            Log.d("MainActivity", "AWSMobileClient is initialized")
+//        }.execute()
 
         supportFragmentManager.beginTransaction()
             .replace(R.id.frameLayout, MainFragment.newInstance()).commit()

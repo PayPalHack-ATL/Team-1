@@ -32,11 +32,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/scan"
+        android:layout_centerHorizontal="true"
         android:clickable="false"
         android:focusable="false"
         android:text="AutoFocus" />
 
-    <TextView
+    <Button
         android:id="@+id/total"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -44,10 +45,20 @@
         android:layout_alignParentTop="true"
         android:layout_marginStart="16dp"
         android:layout_marginTop="20dp"
-        android:hint="Total:"
         android:text="Total: $0"
         android:textColor="@android:color/holo_green_light"
-        android:textSize="32dp"
+        android:textSize="32sp" />
+
+    <TextView
+        android:id="@+id/breakdown"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:background="#10808080"
+        android:padding="8dp"
+        android:textColor="@android:color/holo_green_light"
+        android:textSize="24sp"
         android:visibility="invisible" />
 
 </RelativeLayout>

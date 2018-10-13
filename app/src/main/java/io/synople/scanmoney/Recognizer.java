@@ -12,6 +12,7 @@ import com.amazonaws.mobile.client.AWSMobileClient;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.rekognition.AmazonRekognitionClient;
 import com.amazonaws.services.rekognition.model.*;
+import io.synople.scanmoney.model.Money;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
@@ -20,7 +21,45 @@ import java.util.List;
 
 public class Recognizer {
     private AmazonRekognitionClient client;
-    private Image image;
+
+    public Recognizer(Context context) {
+        client = new AmazonRekognitionClient(new CognitoCachingCredentialsProvider(
+                context,
+                "us-east-1:51ce95b9-0d3d-4eb6-b729-1d40d5b39ba7", // Identity pool ID
+                Regions.US_EAST_1 // Region
+        ));
+    }
+
+    public List<Money> getFaces(Image image) {
+        IndexFacesRequest request = new IndexFacesRequest().withImage(convertImage(image));
+        request.setCollectionId("bills");
+        request.setDetectionAttributes(new ArrayList<String>() {{
+            add("ALL");
+        }});
+        IndexFacesResult result = client.indexFaces(request);
+        List<FaceRecord> records = result.getFaceRecords();
+
+        List<Money> moneyList = new ArrayList<>();
+        for (FaceRecord face : records) {
+            String id = face.getFace().getFaceId();
+            SearchFacesRequest searchFacesRequest = new SearchFacesRequest()
+                    .withCollectionId("bills")
+                    .withFaceId(id)
+                    .withFaceMatchThreshold(70F);
+            List<FaceMatch> matches = client.searchFaces(searchFacesRequest).getFaceMatches();
+            while (matches.get(0).getFace().getExternalImageId() == null) {
+                matches.remove(0);
+            }
+            String bestMatch = matches.get(0).getFace().getExternalImageId();
+            face.getFace().setExternalImageId(bestMatch);
+            BoundingBox box = face.getFaceDetail().getBoundingBox();
+            moneyList.add(new Money(box.getTop() + box.getHeight() * image.getHeight(),
+                    box.getTop() + box.getHeight() * image.getWidth(),
+                    bestMatch));
+        }
+
+        return moneyList;
+    }
 
     private static com.amazonaws.services.rekognition.model.Image convertImage(Image image) {
         byte[] data = NV21toJPEG(
@@ -50,60 +89,5 @@ public class Recognizer {
         YuvImage yuv = new YuvImage(nv21, ImageFormat.NV21, width, height, null);
         yuv.compressToJpeg(new Rect(0, 0, width, height), 100, out);
         return out.toByteArray();
-    }
-
-    public Recognizer(Context context) {
-        client = new AmazonRekognitionClient(new CognitoCachingCredentialsProvider(
-                context,
-                "us-east-1:51ce95b9-0d3d-4eb6-b729-1d40d5b39ba7", // Identity pool ID
-                Regions.US_EAST_1 // Region
-        ));
-    }
-
-    public List<FaceRecord> getFaces(Image image) {
-        this.image = image;
-//        GetFaceDetectionResult result = client.getFaceDetection(new GetFaceDetectionRequest().);
-//         img = new com.amazonaws.services.rekognition.model.Image().
-//        DetectFacesRequest request = new DetectFacesRequest().withImage(convertImage(image)).withAttributes(Attribute.ALL.toString());
-//        DetectFacesResult result = client.detectFaces(request);
-        Log.v("Recognizer", convertImage(image).toString());
-        IndexFacesRequest request = new IndexFacesRequest().withImage(convertImage(image));
-        request.setCollectionId("bills");
-        request.setDetectionAttributes(new ArrayList<String>() {{
-            add("ALL");
-        }});
-        IndexFacesResult result = client.indexFaces(request);
-        Log.v("Recognizer", result.toString());
-        List<FaceRecord> records = result.getFaceRecords();
-        Log.d("Recognizer", records.toString());
-        matchFaces(records);
-
-        return records;
-    }
-//    public void matchFaces(List<FaceRecord> faces) {
-//        for(FaceRecord face: faces) {
-////            face.getFace()
-//            com.amazonaws.services.rekognition.model.Image faceImage = new com.amazonaws.services.rekognition.model.Image().setS3Object(new S3Object().withName(face.getFace().getImageId()));
-//            SearchFacesByImageRequest request = new SearchFacesByImageRequest().setImage(face.getFace().getImageId()).withCollectionId("bills");
-//            client.searchFacesByImage(new SearchFacesByImageRequest())
-//
-//
-//
-//        }
-//
-//    }
-
-    public void matchFaces(List<FaceRecord> faces) {
-        for (FaceRecord face : faces) {
-            String id = face.getFace().getFaceId();
-            SearchFacesRequest searchFacesRequest = new SearchFacesRequest()
-                    .withCollectionId("bills")
-                    .withFaceId(id)
-                    .withFaceMatchThreshold(70F);
-            List<FaceMatch> matches = client.searchFaces(searchFacesRequest).getFaceMatches();
-            String bestMatch = matches.get(0).getFace().getExternalImageId();
-            face.getFace().setExternalImageId(bestMatch);
-            Log.d("Recognizer", bestMatch);
-        }
     }
 }

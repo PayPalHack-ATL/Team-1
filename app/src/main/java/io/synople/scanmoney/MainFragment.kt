@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
@@ -40,6 +41,27 @@ class MainFragment : Fragment() {
             thread(true) {
                 val money = recognizer.getFaces(image)
                 Log.v("Money", money.toString())
+
+                activity!!.runOnUiThread {
+                    money.forEach {
+                        val anchor = arFragment.arSceneView.arFrame.hitTest(500f, 500f)[0].createAnchor()
+
+                        Log.v("Money", it.x.toString() + ", " + it.y)
+
+                        ViewRenderable.builder()
+                            .setView(context, R.layout.renderable_money)
+                            .build()
+                            .thenAccept { renderable ->
+                                val anchorNode = AnchorNode(anchor)
+                                anchorNode.setParent(arFragment.arSceneView.scene)
+
+                                (renderable?.view as TextView).text = it.value + "!!!"
+                                val transformableNode = TransformableNode(arFragment.transformationSystem)
+                                transformableNode.setParent(anchorNode)
+                                transformableNode.renderable = renderable
+                            }
+                    }
+                }
             }
         }
 
@@ -58,8 +80,28 @@ class MainFragment : Fragment() {
                     val transformableNode = TransformableNode(arFragment.transformationSystem)
                     transformableNode.setParent(anchorNode)
                     transformableNode.renderable = renderable
-                    transformableNode.select()
                 }
+        }
+
+        main.setOnTouchListener { _, event ->
+            Log.v("Touch", event.x.toString() + ", " + event.y)
+
+            val anchor = arFragment.arSceneView.arFrame.hitTest(event.x, event.y)[0].createAnchor()
+
+            ViewRenderable.builder()
+                .setView(context, R.layout.renderable_money)
+                .build()
+                .thenAccept { renderable ->
+                    val anchorNode = AnchorNode(anchor)
+                    anchorNode.setParent(arFragment.arSceneView.scene)
+
+                    (renderable?.view as TextView).text = "#"
+                    val transformableNode = TransformableNode(arFragment.transformationSystem)
+                    transformableNode.setParent(anchorNode)
+                    transformableNode.renderable = renderable
+                }
+
+            return@setOnTouchListener true
         }
 
         autoFocus.setOnClickListener {
@@ -67,6 +109,22 @@ class MainFragment : Fragment() {
             config.focusMode = Config.FocusMode.AUTO
             config.updateMode = Config.UpdateMode.LATEST_CAMERA_IMAGE
             arFragment.arSceneView.session.configure(config)
+
+            val anchor = arFragment.arSceneView.arFrame.hitTest(500f, 500f)[0].createAnchor()
+
+            ViewRenderable.builder()
+                .setView(context, R.layout.renderable_money)
+                .build()
+                .thenAccept { renderable ->
+                    val anchorNode = AnchorNode(anchor)
+                    anchorNode.setParent(arFragment.arSceneView.scene)
+
+                    (renderable?.view as TextView).text = "#"
+                    val transformableNode = TransformableNode(arFragment.transformationSystem)
+                    transformableNode.setParent(anchorNode)
+                    transformableNode.renderable = renderable
+                }
+
         }
 
         thread(false) {

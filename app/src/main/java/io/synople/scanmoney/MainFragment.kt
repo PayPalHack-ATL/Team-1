@@ -39,27 +39,35 @@ class MainFragment : Fragment() {
                 (childFragmentManager.findFragmentById(R.id.uxFragment) as ArFragment).arSceneView.arFrame.acquireCameraImage()
 
             thread(true) {
-                val money = recognizer.getFaces(image)
-                Log.v("Money", money.toString())
+                val moneyList = recognizer.getFaces(image)
 
                 activity!!.runOnUiThread {
-                    money.forEach {
-                        val anchor = arFragment.arSceneView.arFrame.hitTest(500f, 500f)[0].createAnchor()
+                    moneyList.forEach { money ->
+                        arFragment.arSceneView.arFrame.hitTest(money.x, money.y).forEach {
+                            val anchor = it.createAnchor()
 
-                        Log.v("Money", it.x.toString() + ", " + it.y)
+                            Log.v("Money", money.x.toString() + ", " + money.y)
 
-                        ViewRenderable.builder()
-                            .setView(context, R.layout.renderable_money)
-                            .build()
-                            .thenAccept { renderable ->
-                                val anchorNode = AnchorNode(anchor)
-                                anchorNode.setParent(arFragment.arSceneView.scene)
+                            ViewRenderable.builder()
+                                .setView(context, R.layout.renderable_money)
+                                .build()
+                                .thenAccept { renderable ->
+                                    val anchorNode = AnchorNode(anchor)
+                                    anchorNode.setParent(arFragment.arSceneView.scene)
 
-                                (renderable?.view as TextView).text = it.value + "!!!"
-                                val transformableNode = TransformableNode(arFragment.transformationSystem)
-                                transformableNode.setParent(anchorNode)
-                                transformableNode.renderable = renderable
-                            }
+                                    when (money.value) {
+                                        "washington" -> (renderable?.view as TextView).text = "$1"
+                                        "lincoln" -> (renderable?.view as TextView).text = "$5"
+                                        "hamilton" -> (renderable?.view as TextView).text = "$10"
+                                        "jackson" -> (renderable?.view as TextView).text = "$20"
+                                        "grant" -> (renderable?.view as TextView).text = "$50"
+                                        "franklin" -> (renderable?.view as TextView).text = "$100l"
+                                    }
+                                    val transformableNode = TransformableNode(arFragment.transformationSystem)
+                                    transformableNode.setParent(anchorNode)
+                                    transformableNode.renderable = renderable
+                                }
+                        }
                     }
                 }
             }
@@ -83,48 +91,11 @@ class MainFragment : Fragment() {
                 }
         }
 
-        main.setOnTouchListener { _, event ->
-            Log.v("Touch", event.x.toString() + ", " + event.y)
-
-            val anchor = arFragment.arSceneView.arFrame.hitTest(event.x, event.y)[0].createAnchor()
-
-            ViewRenderable.builder()
-                .setView(context, R.layout.renderable_money)
-                .build()
-                .thenAccept { renderable ->
-                    val anchorNode = AnchorNode(anchor)
-                    anchorNode.setParent(arFragment.arSceneView.scene)
-
-                    (renderable?.view as TextView).text = "#"
-                    val transformableNode = TransformableNode(arFragment.transformationSystem)
-                    transformableNode.setParent(anchorNode)
-                    transformableNode.renderable = renderable
-                }
-
-            return@setOnTouchListener true
-        }
-
         autoFocus.setOnClickListener {
             val config = Config(arFragment.arSceneView.session)
             config.focusMode = Config.FocusMode.AUTO
             config.updateMode = Config.UpdateMode.LATEST_CAMERA_IMAGE
             arFragment.arSceneView.session.configure(config)
-
-            val anchor = arFragment.arSceneView.arFrame.hitTest(500f, 500f)[0].createAnchor()
-
-            ViewRenderable.builder()
-                .setView(context, R.layout.renderable_money)
-                .build()
-                .thenAccept { renderable ->
-                    val anchorNode = AnchorNode(anchor)
-                    anchorNode.setParent(arFragment.arSceneView.scene)
-
-                    (renderable?.view as TextView).text = "#"
-                    val transformableNode = TransformableNode(arFragment.transformationSystem)
-                    transformableNode.setParent(anchorNode)
-                    transformableNode.renderable = renderable
-                }
-
         }
 
         thread(false) {

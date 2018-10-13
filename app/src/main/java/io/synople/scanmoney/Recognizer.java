@@ -53,8 +53,12 @@ public class Recognizer {
             String bestMatch = matches.get(0).getFace().getExternalImageId();
             face.getFace().setExternalImageId(bestMatch);
             BoundingBox box = face.getFaceDetail().getBoundingBox();
-            moneyList.add(new Money(box.getTop() + box.getHeight() * image.getHeight(),
-                    box.getTop() + box.getHeight() * image.getWidth(),
+
+            Log.v("ImageDimen", image.getWidth() + ", " + image.getHeight());
+            Log.v("ImageRaw", (((box.getLeft() + (box.getWidth() / 2f)) * image.getWidth()) * 4f) + ", " + (((box.getTop() + (box.getHeight() / 2f)) * image.getHeight()) * 3f));
+
+            moneyList.add(new Money((((box.getLeft() + (box.getWidth() / 2f)) * image.getWidth()) * 4f),
+                    (((box.getTop() + (box.getHeight() / 2f)) * image.getHeight()) * 3f),
                     bestMatch));
         }
 

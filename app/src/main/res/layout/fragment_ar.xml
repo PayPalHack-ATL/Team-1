@@ -36,4 +36,16 @@
         android:layout_above="@+id/scan"
         android:text="AutoFocus" />
 
+    <TextView
+        android:id="@+id/total"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="20dp"
+        android:hint="Total:"
+        android:text="Total: $0"
+        android:visibility="invisible" />
+
 </RelativeLayout>

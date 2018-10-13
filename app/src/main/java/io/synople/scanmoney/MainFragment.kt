@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
@@ -22,6 +21,7 @@ class MainFragment : Fragment() {
     lateinit var recognizer: Recognizer
     lateinit var arFragment: ArFragment
 
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -31,7 +31,8 @@ class MainFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        var totalCount = 0
+        total.setText(totalCount)
         recognizer = Recognizer(context)
 
         scan.setOnClickListener {
@@ -67,6 +68,13 @@ class MainFragment : Fragment() {
                                     transformableNode.setParent(anchorNode)
                                     transformableNode.renderable = renderable
                                 }
+
+                            totalCount += money.value.toInt()
+                            if (totalCount > 0) {
+                                total.setText(totalCount)
+                                total.visibility = View.VISIBLE
+                            }
+
                         }
                     }
                 }

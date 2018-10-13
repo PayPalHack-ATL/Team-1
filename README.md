@@ -6,6 +6,7 @@ This application uses Computer Vision, Augmented Reality, and Machine Learning t
 
 
 #Team 
+  
 Application built by:  
 Omar Sharifali  
 Jason Tu  

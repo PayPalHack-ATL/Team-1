@@ -5,14 +5,14 @@ This application uses Computer Vision, Augmented Reality, and Machine Learning t
 
 
 
-#Team 
-  
+##Team 
+
 Application built by:  
-Omar Sharifali  
-Jason Tu  
-Blue Lin  
-Andrew Chang  
-Sarah Li  
+1. Omar Sharifali  
+2. Jason Tu  
+3. Blue Lin  
+4. Andrew Chang  
+5. Sarah Li  
   
   
 

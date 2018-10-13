@@ -2,6 +2,7 @@ package io.synople.scanmoney
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,6 +14,9 @@ import com.amazonaws.auth.CognitoCachingCredentialsProvider
 
 
 class MainFragment : Fragment() {
+
+    lateinit var recognizer: Recognizer
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -23,14 +27,14 @@ class MainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val image = (uxFragment as ArFragment).arSceneView.arFrame.acquireCameraImage()
-        val credentialsProvider = CognitoCachingCredentialsProvider(
-            context,
-            "us-east-1:b6109a34-c24d-4fda-ad92-673c51a384f8", // Identity pool ID
-            Regions.US_EAST_1 // Region
-        )
+        recognizer = Recognizer(context)
 
-        val client = AmazonRekognitionClient(credentialsProvider)
+        scan.setOnClickListener {
+            val image = (uxFragment as ArFragment).arSceneView.arFrame.acquireCameraImage()
+
+            val money = recognizer.recognize(image)
+            Log.v("Money", money.toString())
+        }
     }
 
     companion object {

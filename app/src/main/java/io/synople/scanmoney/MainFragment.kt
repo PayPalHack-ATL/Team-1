@@ -33,8 +33,8 @@ class MainFragment : Fragment() {
     private var franklins = 0
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater, container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.fragment_ar, container, false)
     }
@@ -59,17 +59,17 @@ class MainFragment : Fragment() {
             val anchor = hitResult.createAnchor()
 
             ViewRenderable.builder()
-                .setView(context, R.layout.renderable_money)
-                .build()
-                .thenAccept { renderable ->
-                    val anchorNode = AnchorNode(anchor)
-                    anchorNode.setParent(arFragment.arSceneView.scene)
+                    .setView(context, R.layout.renderable_money)
+                    .build()
+                    .thenAccept { renderable ->
+                        val anchorNode = AnchorNode(anchor)
+                        anchorNode.setParent(arFragment.arSceneView.scene)
 
-                    (renderable?.view as TextView).text = "!"
-                    val transformableNode = TransformableNode(arFragment.transformationSystem)
-                    transformableNode.setParent(anchorNode)
-                    transformableNode.renderable = renderable
-                }
+                        (renderable?.view as TextView).text = "!"
+                        val transformableNode = TransformableNode(arFragment.transformationSystem)
+                        transformableNode.setParent(anchorNode)
+                        transformableNode.renderable = renderable
+                    }
         }
 
         autoFocus.setOnClickListener {
@@ -103,7 +103,7 @@ class MainFragment : Fragment() {
 
     private fun analyze() {
         val image =
-            (childFragmentManager.findFragmentById(R.id.uxFragment) as ArFragment).arSceneView.arFrame.acquireCameraImage()
+                (childFragmentManager.findFragmentById(R.id.uxFragment) as ArFragment).arSceneView.arFrame.acquireCameraImage()
 
         val moneyList = recognizer.getFaces(image)
         image.close()
@@ -131,24 +131,24 @@ class MainFragment : Fragment() {
                 anchors.add(anchor)
 
                 ViewRenderable.builder()
-                    .setView(context, R.layout.renderable_money)
-                    .build()
-                    .thenAccept { renderable ->
-                        val anchorNode = AnchorNode(anchor)
-                        anchorNode.setParent(arFragment.arSceneView.scene)
+                        .setView(context, R.layout.renderable_money)
+                        .build()
+                        .thenAccept { renderable ->
+                            val anchorNode = AnchorNode(anchor)
+                            anchorNode.setParent(arFragment.arSceneView.scene)
 
-                        when (money.value) {
-                            "washington" -> (renderable?.view as TextView).text = "$1"
-                            "lincoln" -> (renderable?.view as TextView).text = "$5"
-                            "hamilton" -> (renderable?.view as TextView).text = "$10"
-                            "jackson" -> (renderable?.view as TextView).text = "$20"
-                            "grant" -> (renderable?.view as TextView).text = "$50"
-                            "franklin" -> (renderable?.view as TextView).text = "$100"
+                            when (money.value) {
+                                "washington" -> (renderable?.view as TextView).text = "$1"
+                                "lincoln" -> (renderable?.view as TextView).text = "$5"
+                                "hamilton" -> (renderable?.view as TextView).text = "$10"
+                                "jackson" -> (renderable?.view as TextView).text = "$20"
+                                "grant" -> (renderable?.view as TextView).text = "$50"
+                                "franklin" -> (renderable?.view as TextView).text = "$100"
+                            }
+                            val transformableNode = TransformableNode(arFragment.transformationSystem)
+                            transformableNode.setParent(anchorNode)
+                            transformableNode.renderable = renderable
                         }
-                        val transformableNode = TransformableNode(arFragment.transformationSystem)
-                        transformableNode.setParent(anchorNode)
-                        transformableNode.renderable = renderable
-                    }
 
                 when (money.value) {
                     "washington" -> {

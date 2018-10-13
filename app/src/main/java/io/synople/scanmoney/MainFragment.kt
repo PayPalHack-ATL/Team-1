@@ -6,16 +6,20 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.amazonaws.services.rekognition.AmazonRekognitionClient
+import android.widget.TextView
+import com.amazonaws.services.rekognition.model.Image
+import com.google.ar.sceneform.AnchorNode
+import com.google.ar.sceneform.rendering.Renderable
+import com.google.ar.sceneform.rendering.ViewRenderable
 import com.google.ar.sceneform.ux.ArFragment
+import com.google.ar.sceneform.ux.TransformableNode
 import kotlinx.android.synthetic.main.fragment_ar.*
-import com.amazonaws.regions.Regions
-import com.amazonaws.auth.CognitoCachingCredentialsProvider
 
 
 class MainFragment : Fragment() {
 
     lateinit var recognizer: Recognizer
+    lateinit var arFragment: ArFragment
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -30,10 +34,32 @@ class MainFragment : Fragment() {
         recognizer = Recognizer(context)
 
         scan.setOnClickListener {
-            val image = (uxFragment as ArFragment).arSceneView.arFrame.acquireCameraImage()
+            val image =
+                (childFragmentManager.findFragmentById(R.id.uxFragment) as ArFragment).arSceneView.arFrame.acquireCameraImage()
 
             val money = recognizer.recognize(image)
             Log.v("Money", money.toString())
+        }
+
+        arFragment = (childFragmentManager.findFragmentById(R.id.uxFragment) as ArFragment)
+
+
+        arFragment.setOnTapArPlaneListener { hitResult, plane, motionEvent ->
+            val anchor = hitResult.createAnchor()
+
+            ViewRenderable.builder()
+                .setView(context, R.layout.renderable_money)
+                .build()
+                .thenAccept { renderable ->
+                    val anchorNode = AnchorNode(anchor)
+                    anchorNode.setParent(arFragment.arSceneView.scene)
+
+                    (renderable?.view as TextView).text = "!"
+                    val transformableNode = TransformableNode(arFragment.transformationSystem)
+                    transformableNode.setParent(anchorNode)
+                    transformableNode.renderable = renderable
+                    transformableNode.select()
+                }
         }
     }
 

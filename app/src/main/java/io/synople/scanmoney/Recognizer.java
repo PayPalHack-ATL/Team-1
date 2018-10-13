@@ -7,14 +7,17 @@ import android.graphics.YuvImage;
 import android.media.Image;
 import android.util.Log;
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
+import com.amazonaws.mobile.client.AWSMobileClient;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.rekognition.AmazonRekognitionClient;
+import com.amazonaws.services.rekognition.model.Attribute;
 import com.amazonaws.services.rekognition.model.FaceRecord;
 import com.amazonaws.services.rekognition.model.IndexFacesRequest;
 import com.amazonaws.services.rekognition.model.IndexFacesResult;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Recognizer {
@@ -52,12 +55,7 @@ public class Recognizer {
     }
 
     public Recognizer(Context context) {
-        CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(
-                context,
-                "us-east-1:b6109a34-c24d-4fda-ad92-673c51a384f8", // Identity pool ID
-                Regions.US_EAST_1 // Region
-        );
-        client = new AmazonRekognitionClient(credentialsProvider);
+        client = new AmazonRekognitionClient(AWSMobileClient.getInstance().getCredentialsProvider());
     }
 
     public List<FaceRecord> getFaces(Image image) {
@@ -66,7 +64,12 @@ public class Recognizer {
 //         img = new com.amazonaws.services.rekognition.model.Image().
 //        DetectFacesRequest request = new DetectFacesRequest().withImage(convertImage(image)).withAttributes(Attribute.ALL.toString());
 //        DetectFacesResult result = client.detectFaces(request);
+        Log.v("Recognizer", convertImage(image).toString());
         IndexFacesRequest request = new IndexFacesRequest().withImage(convertImage(image));
+        request.setCollectionId("bills");
+        request.setDetectionAttributes(new ArrayList<String>() {{
+            add("ALL");
+        }});
         IndexFacesResult result = client.indexFaces(request);
         List<FaceRecord> records = result.getFaceRecords();
         Log.d("Recognizer", records.toString());

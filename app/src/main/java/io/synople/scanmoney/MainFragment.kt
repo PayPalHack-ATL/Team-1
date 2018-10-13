@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import com.google.ar.core.Config
 import com.google.ar.sceneform.AnchorNode
 import com.google.ar.sceneform.rendering.ViewRenderable
 import com.google.ar.sceneform.ux.ArFragment
@@ -36,11 +37,16 @@ class MainFragment : Fragment() {
             val image =
                 (childFragmentManager.findFragmentById(R.id.uxFragment) as ArFragment).arSceneView.arFrame.acquireCameraImage()
 
-            val money = recognizer.recognize(image)
-            Log.v("Money", money.toString())
+            thread(true) {
+                val money = recognizer.getFaces(image)
+                Log.v("Money", money.toString())
+            }
         }
 
         arFragment = (childFragmentManager.findFragmentById(R.id.uxFragment) as ArFragment)
+        val config = Config(arFragment.arSceneView.session)
+        config.focusMode = Config.FocusMode.AUTO
+        arFragment.arSceneView.session.configure(config)
         arFragment.setOnTapArPlaneListener { hitResult, plane, motionEvent ->
             val anchor = hitResult.createAnchor()
 
@@ -64,7 +70,7 @@ class MainFragment : Fragment() {
             val image =
                 (childFragmentManager.findFragmentById(R.id.uxFragment) as ArFragment).arSceneView.arFrame.acquireCameraImage()
 
-            val money = recognizer.recognize(image)
+            val money = recognizer.getFaces(image)
             Log.v("Money", money.toString())
         }
     }

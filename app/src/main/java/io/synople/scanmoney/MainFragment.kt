@@ -7,13 +7,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import com.amazonaws.services.rekognition.model.Image
 import com.google.ar.sceneform.AnchorNode
-import com.google.ar.sceneform.rendering.Renderable
 import com.google.ar.sceneform.rendering.ViewRenderable
 import com.google.ar.sceneform.ux.ArFragment
 import com.google.ar.sceneform.ux.TransformableNode
 import kotlinx.android.synthetic.main.fragment_ar.*
+import kotlin.concurrent.thread
 
 
 class MainFragment : Fragment() {
@@ -42,8 +41,6 @@ class MainFragment : Fragment() {
         }
 
         arFragment = (childFragmentManager.findFragmentById(R.id.uxFragment) as ArFragment)
-
-
         arFragment.setOnTapArPlaneListener { hitResult, plane, motionEvent ->
             val anchor = hitResult.createAnchor()
 
@@ -60,6 +57,15 @@ class MainFragment : Fragment() {
                     transformableNode.renderable = renderable
                     transformableNode.select()
                 }
+        }
+
+        thread(false) {
+            Thread.sleep(3000)
+            val image =
+                (childFragmentManager.findFragmentById(R.id.uxFragment) as ArFragment).arSceneView.arFrame.acquireCameraImage()
+
+            val money = recognizer.recognize(image)
+            Log.v("Money", money.toString())
         }
     }
 

@@ -32,7 +32,7 @@ class MainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         var totalCount = 0
-        total.setText(totalCount)
+        view.findViewById<TextView>(R.id.total).text = totalCount.toString()
         recognizer = Recognizer(context)
 
         scan.setOnClickListener {
@@ -44,37 +44,40 @@ class MainFragment : Fragment() {
 
                 activity!!.runOnUiThread {
                     moneyList.forEach { money ->
-                        arFragment.arSceneView.arFrame.hitTest(money.x, money.y).forEach {
-                            val anchor = it.createAnchor()
+                        val anchor = arFragment.arSceneView.arFrame.hitTest(money.x, money.y)[0].createAnchor()
 
-                            Log.v("Money", money.x.toString() + ", " + money.y)
+                        ViewRenderable.builder()
+                            .setView(context, R.layout.renderable_money)
+                            .build()
+                            .thenAccept { renderable ->
+                                val anchorNode = AnchorNode(anchor)
+                                anchorNode.setParent(arFragment.arSceneView.scene)
 
-                            ViewRenderable.builder()
-                                .setView(context, R.layout.renderable_money)
-                                .build()
-                                .thenAccept { renderable ->
-                                    val anchorNode = AnchorNode(anchor)
-                                    anchorNode.setParent(arFragment.arSceneView.scene)
-
-                                    when (money.value) {
-                                        "washington" -> (renderable?.view as TextView).text = "$1"
-                                        "lincoln" -> (renderable?.view as TextView).text = "$5"
-                                        "hamilton" -> (renderable?.view as TextView).text = "$10"
-                                        "jackson" -> (renderable?.view as TextView).text = "$20"
-                                        "grant" -> (renderable?.view as TextView).text = "$50"
-                                        "franklin" -> (renderable?.view as TextView).text = "$100l"
-                                    }
-                                    val transformableNode = TransformableNode(arFragment.transformationSystem)
-                                    transformableNode.setParent(anchorNode)
-                                    transformableNode.renderable = renderable
+                                when (money.value) {
+                                    "washington" -> (renderable?.view as TextView).text = "$1"
+                                    "lincoln" -> (renderable?.view as TextView).text = "$5"
+                                    "hamilton" -> (renderable?.view as TextView).text = "$10"
+                                    "jackson" -> (renderable?.view as TextView).text = "$20"
+                                    "grant" -> (renderable?.view as TextView).text = "$50"
+                                    "franklin" -> (renderable?.view as TextView).text = "$100"
                                 }
-
-                            totalCount += money.value.toInt()
-                            if (totalCount > 0) {
-                                total.setText(totalCount)
-                                total.visibility = View.VISIBLE
+                                val transformableNode = TransformableNode(arFragment.transformationSystem)
+                                transformableNode.setParent(anchorNode)
+                                transformableNode.renderable = renderable
                             }
 
+                        when (money.value) {
+                            "washington" -> totalCount += 1
+                            "lincoln" -> totalCount += 5
+                            "hamilton" -> totalCount += 10
+                            "jackson" -> totalCount += 20
+                            "grant" -> totalCount += 50
+                            "franklin" -> totalCount += 100
+                        }
+
+                        if (totalCount > 0) {
+                            total.text = "Total: $" + totalCount.toString()
+                            total.visibility = View.VISIBLE
                         }
                     }
                 }

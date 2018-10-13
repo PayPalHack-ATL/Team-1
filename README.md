@@ -1,7 +1,7 @@
 # $canMoney
 PayPal Hack ATL 2018
 
-Application built by:
+Application built by:  
 Omar Sharifali  
 Jason Tu  
 Blue Lin  
